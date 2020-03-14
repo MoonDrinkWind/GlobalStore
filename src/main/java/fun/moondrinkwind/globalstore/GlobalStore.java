@@ -1,15 +1,28 @@
 package fun.moondrinkwind.globalstore;
 
+import cc.zoyn.core.builder.ItemStackBuilder;
 import fun.moondrinkwind.globalstore.command.CommandRegister;
 import fun.moondrinkwind.globalstore.configuration.ConfigurationLoader;
+import fun.moondrinkwind.globalstore.pojo.Commodity;
 import fun.moondrinkwind.globalstore.util.DatabaseUtil;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public final class GlobalStore extends JavaPlugin {
     private static GlobalStore self = null;
     private static Economy economy;
     private static ConfigurationLoader configurationLoader = null;
+    private HashMap<Integer, Inventory> storePages = null;
 
     public GlobalStore() {
         saveDefaultConfig();
@@ -41,5 +54,29 @@ public final class GlobalStore extends JavaPlugin {
     @Override
     public void onDisable() {
         DatabaseUtil.closeDataSource();
+    }
+
+    public void initStorePage() {
+        List<Commodity> commodities = DatabaseUtil.getAllItems();
+        int count = commodities.size() % 52 == 0 ? (commodities.size() % 52) : (commodities.size() % 52) + 1;
+        ItemStack nextPage = new ItemStackBuilder(Material.BARRIER).setDisplayName(ChatColor.GREEN + "下一页").build();
+        ItemStack lastPage = new ItemStackBuilder(Material.BARRIER).setDisplayName(ChatColor.RED + "上一页").build();
+        int indexCommodity = 0;
+        for (int i = 1; i <= count; i++) {
+            Inventory page = Bukkit.createInventory(null, 54, String.format("第%s页", i));
+            page.setItem(46, lastPage);
+            page.setItem(52, nextPage);
+            while (!(page.getSize() == 54)) {
+                Commodity commodity = commodities.get(0);
+                ItemStack itemStack = commodity.getItemStack();
+                ItemMeta itemMeta = itemStack.getItemMeta();
+                List<String> lore = itemMeta.getLore() == null ? new ArrayList<>() : itemMeta.getLore();
+                lore.add("卖家: " + commodity.getPlayer().getName());
+                lore.add("价格: " + commodity.getPrice());
+                itemMeta.setLore(lore);
+                itemStack.setItemMeta(itemMeta);
+                page.addItem(itemStack);
+            }
+        }
     }
 }

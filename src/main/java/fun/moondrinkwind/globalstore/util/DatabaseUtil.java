@@ -86,8 +86,21 @@ public class DatabaseUtil {
     }
 
     public static List<Commodity> getAllItems(){
-        //TODO
-        return new ArrayList<>();
+        List<Commodity> commodities = new ArrayList<>();
+        try{
+            Connection connection = getConnection();
+            ResultSet resultSet = connection.createStatement().executeQuery("SELECT ID, ITEM, PRICE, PLAYER FROM " + tableName);
+            while (resultSet.next()){
+                commodities.add(new Commodity(resultSet.getInt("ID"),
+                        ItemSerializerUtils.fromBase64(resultSet.getString("ITEM"))[0],
+                        Bukkit.getPlayer(UUID.fromString(resultSet.getString("PLAYER"))),
+                        resultSet.getDouble("PRICE")));
+            }
+            connection.close();
+        }catch (SQLException ex){
+            ex.printStackTrace();
+        }
+        return commodities;
     }
 
     private static Connection getConnection() throws SQLException {

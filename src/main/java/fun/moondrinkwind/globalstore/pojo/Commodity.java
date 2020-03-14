@@ -24,12 +24,12 @@ public class Commodity {
         this.itemStack = itemStack;
     }
 
-    public void setOwner(Player owner) {
-        this.player = player;
-    }
-
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
     public int getId() {
@@ -40,7 +40,7 @@ public class Commodity {
         return itemStack;
     }
 
-    public Player getOwner() {
+    public Player getPlayer() {
         return player;
     }
 
