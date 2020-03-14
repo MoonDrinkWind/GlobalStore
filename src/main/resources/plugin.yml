@@ -1,0 +1,6 @@
+name: GlobalStore
+version: ${project.version}
+main: fun.moondrinkwind.globalstore.GlobalStore
+prefix: GS
+depend: [Vault]
+authors: [MoonDrinkWind]

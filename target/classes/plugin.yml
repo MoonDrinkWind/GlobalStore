@@ -1,0 +1,6 @@
+name: GlobalStore
+version: 1.0-SNAPSHOT
+main: fun.moondrinkwind.globalstore.GlobalStore
+prefix: GS
+depend: [Vault]
+authors: [MoonDrinkWind]
