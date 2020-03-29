@@ -1,5 +1,6 @@
 package fun.moondrinkwind.globalstore.command;
 
+import fun.moondrinkwind.globalstore.GlobalStore;
 import fun.moondrinkwind.globalstore.util.DatabaseUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -29,7 +30,8 @@ public class GlobalStoreCommand extends Command {
         Player player = (Player) sender;
         if(args.length == 0 || args[0].equalsIgnoreCase("help")){
             sender.sendMessage(ChatColor.GREEN + "/globalStore 价格 将手中的物品商家到全球市场!");
-            sender.sendMessage(ChatColor.GREEN + "/globalStore open 打开全球市场");
+            sender.sendMessage(ChatColor.GREEN + "/globalStore open 打开全球市场!");
+            sender.sendMessage(ChatColor.GREEN + "/globalStore mine 查看自己正在出售的所有物品!");
             sender.sendMessage(ChatColor.GOLD + "FAQ");
             sender.sendMessage(ChatColor.RED + "Q: 如何下架自己的物品");
             sender.sendMessage(ChatColor.RED + "A: 打开全球商店-我的商品-点击需要下架的商品 即可下架");
@@ -39,6 +41,8 @@ public class GlobalStoreCommand extends Command {
                 double price = Double.parseDouble(args[0]);
                 DatabaseUtil.insertItem(player.getInventory().getItemInMainHand(), price, player);
                 player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+                player.sendMessage(ChatColor.GOLD + "正在上架!");
+                GlobalStore.getSelf().initStorePage();
                 player.sendMessage(ChatColor.GREEN + "上架成功!");
             }
             else{
@@ -46,7 +50,12 @@ public class GlobalStoreCommand extends Command {
             }
         }
         else if(args.length == 1 && args[0].equalsIgnoreCase("open")){
-
+            if(GlobalStore.getSelf().getStorePages().isEmpty()){
+                player.sendMessage(ChatColor.GREEN + "暂时没有物品出售哦!");
+            }
+            else{
+                player.openInventory(GlobalStore.getSelf().getStorePages().get(1));
+            }
         }
         else{
             sender.sendMessage(ChatColor.DARK_RED + "你使用的姿势不对,请检查命令或使用/globalStore help获取帮助");

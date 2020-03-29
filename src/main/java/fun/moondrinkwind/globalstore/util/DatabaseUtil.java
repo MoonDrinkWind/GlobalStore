@@ -72,12 +72,11 @@ public class DatabaseUtil {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()){
-                target = new Commodity(resultSet.getInt("ID"),
+            target = new Commodity(resultSet.getInt("ID"),
                         ItemSerializerUtils.fromBase64(resultSet.getString("ITEM"))[0],
-                        Bukkit.getPlayer(UUID.fromString(resultSet.getString("OWNER"))),
+                        Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString("OWNER"))),
                         resultSet.getDouble("PRICE"));
-            }
+            System.out.println(target);
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -93,7 +92,7 @@ public class DatabaseUtil {
             while (resultSet.next()){
                 commodities.add(new Commodity(resultSet.getInt("ID"),
                         ItemSerializerUtils.fromBase64(resultSet.getString("ITEM"))[0],
-                        Bukkit.getPlayer(UUID.fromString(resultSet.getString("PLAYER"))),
+                        Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString("PLAYER"))),
                         resultSet.getDouble("PRICE")));
             }
             connection.close();

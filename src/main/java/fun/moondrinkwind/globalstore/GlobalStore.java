@@ -3,6 +3,7 @@ package fun.moondrinkwind.globalstore;
 import cc.zoyn.core.builder.ItemStackBuilder;
 import fun.moondrinkwind.globalstore.command.CommandRegister;
 import fun.moondrinkwind.globalstore.configuration.ConfigurationLoader;
+import fun.moondrinkwind.globalstore.listener.InventoryClickListener;
 import fun.moondrinkwind.globalstore.pojo.Commodity;
 import fun.moondrinkwind.globalstore.util.DatabaseUtil;
 import net.milkbowl.vault.economy.Economy;
@@ -44,11 +45,17 @@ public final class GlobalStore extends JavaPlugin {
         return configurationLoader;
     }
 
+    public HashMap<Integer, Inventory> getStorePages() {
+        return storePages;
+    }
+
     @Override
     public void onEnable() {
         CommandRegister.registerAllCommands();
         DatabaseUtil.createTable();
         economy = getServer().getServicesManager().getRegistration(Economy.class).getProvider();
+        initStorePage();
+        Bukkit.getPluginManager().registerEvents(new InventoryClickListener(), this);
     }
 
     @Override
@@ -57,6 +64,7 @@ public final class GlobalStore extends JavaPlugin {
     }
 
     public void initStorePage() {
+        storePages = new HashMap<>();
         List<Commodity> commodities = DatabaseUtil.getAllItems();
         int count = commodities.size() % 52 == 0 ? (commodities.size() % 52) : (commodities.size() % 52) + 1;
         ItemStack nextPage = new ItemStackBuilder(Material.BARRIER).setDisplayName(ChatColor.GREEN + "下一页").build();
@@ -66,17 +74,26 @@ public final class GlobalStore extends JavaPlugin {
             Inventory page = Bukkit.createInventory(null, 54, String.format("第%s页", i));
             page.setItem(46, lastPage);
             page.setItem(52, nextPage);
-            while (!(page.getSize() == 54)) {
-                Commodity commodity = commodities.get(0);
-                ItemStack itemStack = commodity.getItemStack();
-                ItemMeta itemMeta = itemStack.getItemMeta();
-                List<String> lore = itemMeta.getLore() == null ? new ArrayList<>() : itemMeta.getLore();
-                lore.add("卖家: " + commodity.getPlayer().getName());
-                lore.add("价格: " + commodity.getPrice());
-                itemMeta.setLore(lore);
-                itemStack.setItemMeta(itemMeta);
-                page.addItem(itemStack);
+            while (!(page.firstEmpty() == -1)) {
+                if(indexCommodity < commodities.size()){
+                    Commodity commodity = commodities.get(indexCommodity);
+                    ItemStack itemStack = commodity.getItemStack();
+                    ItemMeta itemMeta = itemStack.getItemMeta();
+                    List<String> lore = itemMeta.getLore() == null ? new ArrayList<>() : itemMeta.getLore();
+                    lore.add("ID: " + commodity.getId());
+                    lore.add("卖家: " + commodity.getPlayer().getName());
+                    lore.add("价格: " + commodity.getPrice());
+                    itemMeta.setLore(lore);
+                    itemStack.setItemMeta(itemMeta);
+                    page.addItem(itemStack);
+                    indexCommodity ++;
+                }
+
+                if(indexCommodity == commodities.size()){
+                    break;
+                }
             }
+            storePages.put(i, page);
         }
     }
 }

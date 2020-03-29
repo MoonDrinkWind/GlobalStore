@@ -1,6 +1,7 @@
 fun\moondrinkwind\globalstore\command\GlobalStoreCommand.class
 fun\moondrinkwind\globalstore\command\CommandRegister.class
 fun\moondrinkwind\globalstore\configuration\ConfigurationLoader.class
+fun\moondrinkwind\globalstore\listener\InventoryClickListener.class
 fun\moondrinkwind\globalstore\util\DatabaseUtil.class
 fun\moondrinkwind\globalstore\GlobalStore.class
 fun\moondrinkwind\globalstore\pojo\Commodity.class
